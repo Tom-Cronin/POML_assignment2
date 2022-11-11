@@ -1,0 +1,7 @@
+label	year	temp	humidity	rainfall	drought_code	buildup_index	day	month	wind_speed
+no   	2015	30	56	0.1	16.9	5.94	19	06	16
+no   	2008	29	80	0.4	27.73	5.38	20	06	16
+yes   	2012	29	77	0	31.63	9.19	21	06	14
+no   	2010	30	69	0.1	39.89	10.52	22	06	18
+yes   	2017	32	64	0.1	48.67	12.32	23	06	20
+yes   	2007	32	66	0	56.41	15.86	24	06	19
