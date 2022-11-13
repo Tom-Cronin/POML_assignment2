@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from perceptron import Perceptron
-from utils import read_data_return_dataframe, split_df_labels_attributes
+from utils import *
 
 
 class TestPerceptron(unittest.TestCase):

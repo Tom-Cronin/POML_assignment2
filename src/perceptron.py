@@ -1,10 +1,6 @@
 import pandas as pd
 import numpy as np
 
-import doctest
-
-
-
 class Perceptron:
     """The perceptron class"""
 
