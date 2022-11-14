@@ -3,12 +3,14 @@ import numpy as np
 import data_functions
 from data_functions import Normalize
 from sklearn.model_selection import train_test_split
-
+from math import e, pow
+from metrics import *
 class ThresholdLogicUnit:
 
-    def __init__(self, learning_rate):
+    def __init__(self, learning_rate,activation_function='heaviside'):
         self.learning_rate = learning_rate
         self.weights = None
+        self.activation_function = activation_function
 
     def __inialiseWeights(self, x):
         w = []
@@ -16,18 +18,35 @@ class ThresholdLogicUnit:
             w.append(random.uniform(-.5,.5))
         self.weights = np.asarray(w)
 
-    def sgn_step_fn(self, sum_weights):
-        if sum_weights >0:
+    def heaviside(self, sum_weights):
+        if sum_weights >= 0:
             return 1
         return 0
 
-    def fit(self, X, y, learning_iterations=200):
+    def relu(self, sum_weights):
+        if sum_weights >= 0:
+            return sum_weights
+        return 0
+
+    def sigmoid(self, sum_weights):
+        results = 1 / (1 + (pow(e,-sum_weights)))
+        if results >= 0.5:
+            return 1
+        return 0
+    def activation_func(self, sum_weights):
+        if self.activation_function.lower() == "relu":
+            return self.relu(sum_weights)
+        elif self.activation_function.lower() == "sigmoid":
+            return self.sigmoid(sum_weights)
+        else:
+            return self.heaviside(sum_weights)
+    def fit(self, X, y=None, learning_iterations=200):
         if self.weights is None:
             self.__inialiseWeights(X[0])  # sets the weights to the amount of inputs
 
         for _ in range(learning_iterations):
             for (data_vector, label) in zip(X, y):
-                prediction = self.sgn_step_fn(np.dot(data_vector.T, self.weights))
+                prediction = self.activation_func(np.dot(data_vector.T, self.weights))
                 if prediction != label:
                     error = prediction - label
                     self.weights += -self.learning_rate * error * data_vector
@@ -35,38 +54,8 @@ class ThresholdLogicUnit:
     def predict(self, X):
         prediction = []
         for x in X:
-            prediction.append(self.sgn_step_fn(np.dot(x.T, self.weights)))
+            prediction.append(self.activation_func(np.dot(x.T, self.weights)))
         return prediction
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def accuracy(predictions, labels):
-    right = 0
-    wrong = 0
-    for index in range(len(predictions)):
-        if predictions[index] == labels.values[index]:
-            right +=1
-        else:
-            wrong +=1
-    return right/(wrong+right)
 
 
 #  one pass = forward + backwards
@@ -100,16 +89,29 @@ if __name__=='__main__':
     X_train = np.asarray(X_train)
     y_train = np.asarray(y_train)
 
-    perceptron = ThresholdLogicUnit(learning_rate=0.01)
+    perceptron = ThresholdLogicUnit(learning_rate=0.1, activation_function='sigmoid')
     perceptron.fit(X_train,y_train, learning_iterations=200)
 
     predictions = perceptron.predict(np.asarray(X_test))
-    print(accuracy(predictions, y_test))
+    print(predictions)
 
 
+    print("Test", perceptron.sigmoid(0))
+    print("Confusin Matrix [TP, FP][TN, FN]")
 
+    cf_m = confusion_matrix(predictions, y_test.values)
+    print("True Positives = ", cf_m[0][0])
+    print("False Positives = ", cf_m[0][1])
+    print("True Negative = ", cf_m[1][1])
+    print("False Negative = ", cf_m[1][0])
 
+    print("Accuracy: ", accuracy(predictions, y_test.values))
+    print("Precision: ", precision(predictions, y_test.values))
+    print("Recall: ", recall(predictions, y_test.values))
+    print("F1 Score: ", f1_score(predictions, y_test.values))
 
+#%%
 
+#%%
 
-
+#%%
