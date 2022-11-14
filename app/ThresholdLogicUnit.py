@@ -1,10 +1,9 @@
 import random
 import numpy as np
-import data_functions
-from data_functions import Normalize
+from Utils import *
 from sklearn.model_selection import train_test_split
 from math import e, pow
-from metrics import *
+from Metrics import *
 # Tom Cronin, Creating the Perceptron for a single layer
 
 
@@ -62,10 +61,10 @@ class ThresholdLogicUnit:
 
 #  one pass = forward + backwards
 if __name__=='__main__':
-    wildfires = data_functions.read_data_return_dataframe("../../wildfires.txt")
+    wildfires = read_data_return_dataframe("../../wildfires.txt")
     # Copy to be used for the rest of the assignment
     wildfires_copy = wildfires.copy()
-    wildfires_copy = data_functions.convert_label(wildfires,
+    wildfires_copy = convert_label(wildfires,
                                                   'fire',
                                                   ['no', 'yes'],
                                                   ['NO', 'YES'])

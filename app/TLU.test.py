@@ -1,10 +1,10 @@
 import unittest
 import numpy as np
-from perceptron import Perceptron
-from utils import *
+from ThresholdLogicUnit import ThresholdLogicUnit as Perceptron
+from Utils import *
 
 
-class TestPerceptron(unittest.TestCase):
+class TestThresholdLogicUnit(unittest.TestCase):
 
     def test_constructor_validation(self):
         """Should fail validation"""
