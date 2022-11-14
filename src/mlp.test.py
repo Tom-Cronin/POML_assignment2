@@ -48,7 +48,4 @@ class TestMLP(unittest.TestCase):
     
     def test_constructor_validation(self):
         with self.assertRaises(ValueError):
-            
-    
-    
-    pass
+            pass     
