@@ -3,7 +3,6 @@ import numpy as np
 import data_functions
 from data_functions import Normalize
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score
 
 class ThresholdLogicUnit:
 
@@ -28,7 +27,7 @@ class ThresholdLogicUnit:
 
         for _ in range(learning_iterations):
             for (data_vector, label) in zip(X, y):
-                prediction = self.sgn_step_fn(np.dot(data_vector, self.weights))
+                prediction = self.sgn_step_fn(np.dot(data_vector.T, self.weights))
                 if prediction != label:
                     error = prediction - label
                     self.weights += -self.learning_rate * error * data_vector
@@ -36,7 +35,7 @@ class ThresholdLogicUnit:
     def predict(self, X):
         prediction = []
         for x in X:
-            prediction.append(self.sgn_step_fn(np.dot(x, self.weights)))
+            prediction.append(self.sgn_step_fn(np.dot(x.T, self.weights)))
         return prediction
 
 
@@ -101,12 +100,10 @@ if __name__=='__main__':
     X_train = np.asarray(X_train)
     y_train = np.asarray(y_train)
 
-    perceptron = ThresholdLogicUnit(learning_rate=0.1)
-    perceptron.fit(X_train,y_train, learning_iterations=2)
+    perceptron = ThresholdLogicUnit(learning_rate=0.01)
+    perceptron.fit(X_train,y_train, learning_iterations=200)
 
     predictions = perceptron.predict(np.asarray(X_test))
-    print(np.asarray(predictions))
-    print(y_test)
     print(accuracy(predictions, y_test))
 
 
