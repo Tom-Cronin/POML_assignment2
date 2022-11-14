@@ -40,7 +40,7 @@ def split_df_to_train_test_dfs(df, lower=0.66, upper=0.9):
 
 # Tom Cronin ToDo coment and add tests
 # TODO: Add tests
-def normalise(ndarray, features):
+def Normalize(ndarray, features):
     """
     Standardises the data by subtracting the mean from each element and dividing it by the standard deviation
     The results of standarising the data will reduce the standard deviation to 1 and the mean of each feature to 0
@@ -56,3 +56,13 @@ def normalise(ndarray, features):
         xmax = max(array)      # gets the max value
         ndarray[:, feature] = (array-xmin)/(xmax-xmin)  # calculates and replaces the column with its normalised version
     return ndarray
+
+def convert_label(dataframe, label, old_values, new_values):
+    ndarray = dataframe[label].copy()
+    for index in range(len(ndarray)):
+        if old_values[0] in ndarray[index].lower():
+            ndarray[index] = new_values[0]
+        elif old_values[1] in ndarray[index].lower():
+            ndarray[index] = new_values[1]
+    dataframe[label] = ndarray
+    return dataframe

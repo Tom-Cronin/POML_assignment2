@@ -1,7 +1,6 @@
-from Layers import DenseLayer, Layer, Relu, soft_max, loss_function
+from d_Layers import DenseLayer, Layer, Relu, soft_max, loss_function
 import numpy as np
-import data_functions
-from data_functions import *
+from Utils import *
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score
 
@@ -41,10 +40,10 @@ class NeuralNetwork:
 if __name__=='__main__':
     activation = Relu()
 
-    wildfires = data_functions.read_data_return_dataframe("../wildfires.txt")
+    wildfires = read_data_return_dataframe("../wildfires.txt")
     # Copy to be used for the rest of the assignment
     wildfires_copy = wildfires.copy()
-    wildfires_copy = data_functions.convert_label(wildfires,
+    wildfires_copy = convert_label(wildfires,
                                                   'fire',
                                                   ['no', 'yes'],
                                                   ['NO', 'YES'])

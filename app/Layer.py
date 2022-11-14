@@ -1,6 +1,6 @@
 import numpy as np
 
-import src.perceptron as p
+# import src.perceptron as p
 
 class Layer:
     
