@@ -15,6 +15,9 @@ class Perceptron:
     def __repr__(self):
         return f"{type(self).__name__}()"
 
+    def __str__(self):
+        return f'{type(self).__name__} - weights:{self.weights}, bias:{self.bias}'
+
     def _validate_input_params(self, learn_rate, n_iters):
         if not isinstance(n_iters, int) or n_iters < 1:
             raise ValueError("n_iters must be an integer and a natural number")
@@ -27,8 +30,9 @@ class Perceptron:
         if(isinstance(X, pd.DataFrame)):
             X = X.to_numpy()
         
-        self.weights = np.random.rand(X.shape[1])
-        self.bias = 0
+        if self.weights is None:
+            self.weights = np.random.rand(X.shape[1])
+            self.bias = 0
 
         for _ in range(self.n_iters):
             for i, x_i in enumerate(X):
