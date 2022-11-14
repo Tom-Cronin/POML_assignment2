@@ -5,32 +5,35 @@ from data_functions import Normalize
 from sklearn.model_selection import train_test_split
 from math import e, pow
 from metrics import *
+# Tom Cronin, Creating the Perceptron for a single layer
+
+
 class ThresholdLogicUnit:
 
-    def __init__(self, learning_rate,activation_function='heaviside'):
-        self.learning_rate = learning_rate
-        self.weights = None
-        self.activation_function = activation_function
+    def __init__(self, learning_rate, activation_function='heaviside'):
+        self.learning_rate = learning_rate  # specifies the learning rate for the TLU
+        self.weights = None                 # none for first time activation can be passed pre clalced biases
+        self.activation_function = activation_function # specifies activation function 'Relu', 'Sigmoid', 'Heaviside'
 
-    def __inialiseWeights(self, x):
-        w = []
-        for _ in range(len(x)):
-            w.append(random.uniform(-.5,.5))
-        self.weights = np.asarray(w)
+    def initialiseWeights(self, x):
+        w = []  # empty weights array
+        for _ in range(len(x)):  # loops through inputs
+            w.append(random.uniform(-.5,.5))  # initialises weights randomly between -.5 and +.5
+        self.weights = np.asarray(w)  # converts and sets weights to numpy array at the instance level
 
-    def heaviside(self, sum_weights):
-        if sum_weights >= 0:
+    def heaviside(self, sum_weights):  # base function
+        if sum_weights >= 0:  # returns 1 if score is positive
             return 1
-        return 0
+        return 0  # returns 0 if score is negative
 
-    def relu(self, sum_weights):
-        if sum_weights >= 0:
+    def relu(self, sum_weights):  # activation function for layers
+        if sum_weights >= 0:  # returns the value if positive
             return sum_weights
-        return 0
+        return 0  # returns 0 if value is negative
 
-    def sigmoid(self, sum_weights):
-        results = 1 / (1 + (pow(e,-sum_weights)))
-        if results >= 0.5:
+    def sigmoid(self, sum_weights):  # sigmoid activation for output
+        results = 1 / (1 + (pow(e,-sum_weights)))  # calculates the sigmoid result
+        if results >= 0.5:  # ie if sigmoid  a 0 sum_weight value return 1 or higher return positive
             return 1
         return 0
     def activation_func(self, sum_weights):
@@ -42,8 +45,7 @@ class ThresholdLogicUnit:
             return self.heaviside(sum_weights)
     def fit(self, X, y=None, learning_iterations=200):
         if self.weights is None:
-            self.__inialiseWeights(X[0])  # sets the weights to the amount of inputs
-
+            self.initialiseWeights(X[0])  # sets the weights to the amount of inputs
         for _ in range(learning_iterations):
             for (data_vector, label) in zip(X, y):
                 prediction = self.activation_func(np.dot(data_vector.T, self.weights))
