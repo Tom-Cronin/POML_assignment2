@@ -48,7 +48,6 @@ class ThresholdLogicUnit:
         if self.weights is None:
             self.initialise_weights(X[0])  # sets the weights to the amount of inputs
         for _ in range(learning_iterations):  # loops through all the iterations
-           
             for (data_vector, label) in zip(X, y):
                 prediction = self.activation_func(np.dot(data_vector.T, self.weights))  # runs activation
                 if prediction != label:  # if it gets the wrong prediction update the weights

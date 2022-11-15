@@ -4,6 +4,7 @@ from Layer import Layer
 from Utils import *
 from Metrics import * 
 
+# Daniel Verdejo - MLP class
 class MLP():
     """ A multi-layer perceptron class (neural net)"""
 
@@ -22,41 +23,39 @@ class MLP():
         self.weights.append((output_size, input_size))
     
     def forward_propegation(self, X):
-        nextZ =  self.layers[0].predict(X)
-        for i in range(1, len(self.layers)):
-            nextZ = self.layers[i].predict(nextZ)
+        nextZ =  self.layers[0].predict(X) # for the first layer feed raw input
+        for i in range(1, len(self.layers)): 
+            nextZ = self.layers[i].predict(nextZ) # for every other layer feed the output of every neuron to the next layer of neurons
 
-        return nextZ # return the outputs of each layer
+        return nextZ # return the outputs layer
         
     
     def back_propegation(self, Z, X, Y):
         sig_deriv = (lambda x: x * (1 - x))
         e = Z - Y.T # get the error of our output
         delta = e * sig_deriv(Z) # using the derivative of sigmoid to get the difference
-        update = []
-        for w in range(1,len(self.weights)): # for every weight in our weight we gather the err and delta 
-            z_err = delta.dot(w)
-            z_delta = z_err * sig_deriv(Z)
+        update_0 = []
+        for w in range(1,len(self.weights)): # for every weight in our weight we gather the err and delta and update the weights accordingly
+            z_err = delta.dot(w) # the error of the layer based off the final output delta
+            z_delta = z_err * sig_deriv(Z) # the diff between the layer output and final output
             for d in z_delta:
                 if (d.shape == X.shape):
-                    update += X.T.dot(d)
-            self.layers[0].update_weights(update)
-            x =[]
+                    update_0 += X.T.dot(d) # the update should be the dot product of our transposed X and delta of layer deltas
+            self.layers[0].update_weights(update_0) # update the weights of our input to hidden layer
+            update_l_n =[]
             for d in delta:
                 if d.shape == Z.T.shape:
-                    x += Z.T.dot(d)
-            self.layers[w].update_weights(x) 
-
+                    update_l_n += Z.T.dot(d)
+            self.layers[w].update_weights(update_l_n) # update all other layers weights
     
-        
-    def gradient_desc(self, X, Y, iters, a):
+    def gradient_desc(self, X, Y, iters):
         for i in range(iters):
-            Z = self.forward_propegation(X)
-            self.back_propegation(Z, Y, X)
+            Z = self.forward_propegation(X) # feed forward the data
+            self.back_propegation(Z, Y, X) # propegate back the error and delta to update the weights on each neuron of layer n
             if i % 50 == 0:
                 print('iter:', i)
-                print('Acc: ', np.sum(np.argmax(Z, 0) == Y))
-        return Z
+                print('Acc: ', np.sum(np.argmax(Z, 0) == Y)) # check our gradient descent
+        return Z # finally return our prediction
             
 if __name__=='__main__':
     wildfires = read_data_return_dataframe("wildfires.txt")

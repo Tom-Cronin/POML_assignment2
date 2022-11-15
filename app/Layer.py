@@ -4,6 +4,8 @@ from ThresholdLogicUnit import ThresholdLogicUnit as TLU
 from Utils import *
 from Metrics import *
 
+
+# Daniel Verdejo - the layer class which will be the building blocks of our multilayer neural net
 class Layer:
     
     def __init__(self, output_size, activation, input_size):
@@ -45,7 +47,6 @@ if __name__=='__main__':
     # Copy to be used for the rest of the assignment
     wildfires_copy = wildfires.copy()
     # wildfires_copy = convert_label(wildfires,'fire',['no', 'yes'],[0, 1])
-
 
     features = ['year', 'temp', 'humidity', 'rainfall', 'drought_code', 'buildup_index', 'day', 'month', 'wind_speed']
     X_train, X_test, y_train, y_test = split_df_to_train_test_dfs(wildfires_copy, test_set_size=.1,
