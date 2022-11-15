@@ -1,3 +1,4 @@
+# Tom Cronin
 def accuracy(predictions, labels):
     right = 0
     wrong = 0
