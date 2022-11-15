@@ -20,12 +20,12 @@ class TestUtils(unittest.TestCase):
         
     def test_split_df_to_train_test_dfs(self):
         df = read_data_return_dataframe('testdata-alt.txt')
-        train, test = split_df_to_train_test_dfs(df)
+        train, test, y_tr, y_te = split_df_to_train_test_dfs(df)
 
         self.assertEqual(train.index.equals(test.index), False)
         self.assertEqual(len(train) + len(test), len(df))
-        self.assertNotEqual(train.values, test.values)
-        
+        self.assertFalse((train.values.tolist() == test.values.tolist()))
+
         
 if __name__ == '__main__':
     unittest.main()
