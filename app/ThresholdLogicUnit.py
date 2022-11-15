@@ -14,7 +14,7 @@ class ThresholdLogicUnit:
         self.weights = None                 # none for first time activation can be passed pre clalced biases
         self.activation_function = activation_function # specifies activation function 'Relu', 'Sigmoid', 'Heaviside'
 
-    def initialiseWeights(self, x):
+    def initialise_weights(self, x):
         w = []  # empty weights array
         for _ in range(len(x)):  # loops through inputs
             w.append(random.uniform(-.5,.5))  # initialises weights randomly between -.5 and +.5
@@ -35,33 +35,46 @@ class ThresholdLogicUnit:
         if results >= 0.5:  # ie if sigmoid  a 0 sum_weight value return 1 or higher return positive
             return 1
         return 0
-    def activation_func(self, sum_weights):
+
+    def activation_func(self, sum_weights): # switches based on function to use
         if self.activation_function.lower() == "relu":
             return self.relu(sum_weights)
         elif self.activation_function.lower() == "sigmoid":
             return self.sigmoid(sum_weights)
         else:
-            return self.heaviside(sum_weights)
-    def fit(self, X, y=None, learning_iterations=200):
-        if self.weights is None:
-            self.initialiseWeights(X[0])  # sets the weights to the amount of inputs
-        for _ in range(learning_iterations):
-            for (data_vector, label) in zip(X, y):
-                prediction = self.activation_func(np.dot(data_vector.T, self.weights))
-                if prediction != label:
-                    error = prediction - label
-                    self.weights += -self.learning_rate * error * data_vector
+            return self.heaviside(sum_weights) # default is heaviside
 
-    def predict(self, X):
+    def fit(self, X, y=None, learning_iterations=200):  # sets the default iterations to be 200
+        if self.weights is None:
+            self.initialise_weights(X[0])  # sets the weights to the amount of inputs
+        for _ in range(learning_iterations):  # loops through all the iterations
+            for (data_vector, label) in zip(X, y):
+                prediction = self.activation_func(np.dot(data_vector.T, self.weights))  # runs activation
+                if prediction != label:  # if it gets the wrong prediction update the weights
+                    error = prediction - label
+                    self.weights = self.weights - (self.learning_rate * error * data_vector)
+
+    def predict(self, X):  # predicts each sample
         prediction = []
         for x in X:
             prediction.append(self.activation_func(np.dot(x.T, self.weights)))
         return prediction
 
+    def __repr__(self):
+        return f"{type(self).__name__}()"
+
+    def __str__(self):
+        return f'{type(self).__name__} - weights:{self.weights}'
+
+    def _validate_input_params(self, learn_rate, n_iters):
+        if not isinstance(n_iters, int) or n_iters < 1:
+            raise ValueError("n_iters must be an integer and a natural number")
+        if not isinstance(learn_rate, (int, float)) or learn_rate <= 0:
+            raise ValueError("learn_rate must be a float or int greater than 0")
 
 #  one pass = forward + backwards
 if __name__=='__main__':
-    wildfires = read_data_return_dataframe("../../wildfires.txt")
+    wildfires = read_data_return_dataframe("../wildfires.txt")
     # Copy to be used for the rest of the assignment
     wildfires_copy = wildfires.copy()
     wildfires_copy = convert_label(wildfires,
