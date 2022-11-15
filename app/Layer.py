@@ -1,17 +1,89 @@
 import numpy as np
 
-# import src.perceptron as p
+from ThresholdLogicUnit import ThresholdLogicUnit as TLU
+from Utils import *
+from Metrics import *
 
 class Layer:
     
-    def __init__(self, size, lr=0.001, n=500, W=None, B=None):
+    def __init__(self, size, activation, lr=0.01):
         self._validate_input_params(size)
         self.size = size
-        self.Xs = [p.Perceptron(lr, n, W, B) for _ in range(size)]
-
-    def __str__(self):
-        return 'layer'
+        self.N = [TLU(learning_rate=lr, activation_function=activation) for _ in range(size)]
+        
     
     def _validate_input_params(self, size):
         if not isinstance(size, int) or size < 1:
             raise ValueError("size must be an integer and a natural number")
+    
+    def fit(self, X, y=None):
+        [ n.fit(X, y) for n in self.N ]
+    
+    def predict(self, X):
+        self.predictions = [  ]
+        # print(X)
+        for n in self.N:
+            for x in X:
+                
+            # pred = n.predict(X)
+            # print('my pred', pred)
+        return self.predictions
+    
+    # TODO: Don't forget the initialise_weights update on TLU class!
+    def init_weights(self, X):
+        [ n.initialiseWeights(X[0]) for n in self.N ]
+
+        
+if __name__=='__main__':
+    wildfires = read_data_return_dataframe("wildfires.txt")
+    # Copy to be used for the rest of the assignment
+    wildfires_copy = wildfires.copy()
+    wildfires_copy = convert_label(wildfires,'fire',['no', 'yes'],[0, 1])
+    # ndarray = wildfires_labels.copy()
+    # for index in range(len(ndarray)):
+    #     if 'no' in ndarray[index].lower():
+    #         ndarray[index] = 0
+    #     elif 'yes' in ndarray[index].lower():
+    #         ndarray[index] = 1
+    # wildfires_labels = ndarray
+
+    features = ['year', 'temp', 'humidity', 'rainfall', 'drought_code', 'buildup_index', 'day', 'month', 'wind_speed']
+    X_train, X_test, y_train, y_test = split_df_to_train_test_dfs(wildfires_copy, test_set_size=.1,
+                                                        random_state=42)
+    X_train = X_train[features].values  # returns a numpy NdArray of the features
+    X_test = X_test[features].values  # returns a numpy NdArray of the features
+    X_train = Normalize(X_train, features)
+    X_test = Normalize(X_test, features)
+
+    X_train = np.asarray(X_train)
+    y_train = np.asarray(y_train)
+    
+    l1 = Layer(1, "ReLU")
+    l1.init_weights(X_train)
+    
+    l2 = Layer(1, "sigmoid")
+    
+    # l1.fit(X_train)
+    predictions = l1.predict(np.asarray(X_test))
+    print(predictions)
+    print(len(predictions[0]))
+    l2.fit(np.array(predictions), y_train)
+    
+    prediction = l2.predict(X_test)
+    # print(prediction)
+
+
+
+    # print("Test", perceptron.sigmoid(0))
+    print("Confusin Matrix [TP, FP][TN, FN]")
+
+    cf_m = confusion_matrix(predictions, y_test.values)
+    print("True Positives = ", cf_m[0][0])
+    print("False Positives = ", cf_m[0][1])
+    print("True Negative = ", cf_m[1][1])
+    print("False Negative = ", cf_m[1][0])
+
+    print("Accuracy: ", accuracy(predictions, y_test.values))
+    print("Precision: ", precision(predictions, y_test.values))
+    print("Recall: ", recall(predictions, y_test.values))
+    print("F1 Score: ", f1_score(predictions, y_test.values))

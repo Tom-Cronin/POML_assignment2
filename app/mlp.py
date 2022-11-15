@@ -11,26 +11,13 @@ class MLP():
     hidden_layer_size -- tuple: the # of perceptrons / hidden layer, and # of hidden layers to be added
     """
 
-    def __init__(self, learn_rate=0.001, n_iters=100, hidden_layer_size=(25,1)):
-        self._validate_input_params(learn_rate, n_iters, hidden_layer_size)
+    def __init__(self, learn_rate=0.001, epochs=100, hidden_layer_size=(25,1)):
+        self._validate_input_params(learn_rate, epochs, hidden_layer_size)
         self.learn_rate = learn_rate
-        self.n_iters = n_iters
+        self.n_iters = epochs
         self.hidden_layer_size = hidden_layer_size
         self.layers = []
 
-    def __repr__(self):
-        return f"{type(self).__name__}()"
-
-    def _validate_input_params(self, learn_rate, n_iters, hidden_layer_size):
-        if not isinstance(n_iters, int) or n_iters < 1:
-            raise ValueError("n_iters must be an integer and a natural number")
-        if not isinstance(learn_rate, (int, float)) or learn_rate <= 0:
-            raise ValueError("learn_rate must be a float or int greater than 0")
-        n, m = hidden_layer_size
-        if not isinstance(n, int) or n < 1:
-            raise ValueError("hidden_layer_size must contain natural numbers of type int")
-        if not isinstance(m, int) or m < 1:
-            raise ValueError("hidden_layer_size must contain natural numbers of type int")
     
     def add_layer(self, layer):
         # if type(layer) != l.Layer:
@@ -70,7 +57,19 @@ class MLP():
     def fit_predict(self):
         pass
 
-    
+    def __repr__(self):
+        return f"{type(self).__name__}()"
+
+    def _validate_input_params(self, learn_rate, n_iters, hidden_layer_size):
+        if not isinstance(n_iters, int) or n_iters < 1:
+            raise ValueError("n_iters must be an integer and a natural number")
+        if not isinstance(learn_rate, (int, float)) or learn_rate <= 0:
+            raise ValueError("learn_rate must be a float or int greater than 0")
+        n, m = hidden_layer_size
+        if not isinstance(n, int) or n < 1:
+            raise ValueError("hidden_layer_size must contain natural numbers of type int")
+        if not isinstance(m, int) or m < 1:
+            raise ValueError("hidden_layer_size must contain natural numbers of type int")
 
 # # mlp.add_layer(np.array([]))
 
