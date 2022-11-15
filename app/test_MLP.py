@@ -41,7 +41,7 @@
 
 
 import unittest
-from mlp import MLP
+from MLP import MLP
 
 
 class TestMLP(unittest.TestCase):
