@@ -105,12 +105,10 @@ if __name__=='__main__':
     print(X_train)
 
 
-    perceptron = ThresholdLogicUnit(learning_rate=0.1, activation_function='sigmoid')
+    perceptron = ThresholdLogicUnit(learning_rate=0.0000000000001, activation_function='sigmoid')
     perceptron.fit(X_train,y_train, learning_iterations=200)
 
     predictions = perceptron.predict(np.asarray(X_test))
-    print(predictions)
-
     print("Test", perceptron.sigmoid(0))
     print("Confusin Matrix [TP, FP][TN, FN]")
 
