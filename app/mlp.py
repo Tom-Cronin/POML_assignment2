@@ -1,80 +1,88 @@
 import numpy as np
 
-# import src.layer as l
+from Layer import Layer
+from Utils import *
+from Metrics import * 
 
+# Daniel Verdejo - MLP class
 class MLP():
-    """ A multi-layer perceptron class (neural net)
+    """ A multi-layer perceptron class (neural net)"""
 
-    Args:
-    learn_rate -- float: the learning rate value of the neural net
-    n_iters -- int: the number of iterations that will be carried out
-    hidden_layer_size -- tuple: the # of perceptrons / hidden layer, and # of hidden layers to be added
-    """
-
-    def __init__(self, learn_rate=0.001, n_iters=100, hidden_layer_size=(25,1)):
-        self._validate_input_params(learn_rate, n_iters, hidden_layer_size)
-        self.learn_rate = learn_rate
-        self.n_iters = n_iters
-        self.hidden_layer_size = hidden_layer_size
+    def __init__(self):
         self.layers = []
-
-    def __repr__(self):
-        return f"{type(self).__name__}()"
-
-    def _validate_input_params(self, learn_rate, n_iters, hidden_layer_size):
-        if not isinstance(n_iters, int) or n_iters < 1:
-            raise ValueError("n_iters must be an integer and a natural number")
-        if not isinstance(learn_rate, (int, float)) or learn_rate <= 0:
-            raise ValueError("learn_rate must be a float or int greater than 0")
-        n, m = hidden_layer_size
-        if not isinstance(n, int) or n < 1:
-            raise ValueError("hidden_layer_size must contain natural numbers of type int")
-        if not isinstance(m, int) or m < 1:
-            raise ValueError("hidden_layer_size must contain natural numbers of type int")
+        self.weights = []
     
-    def add_layer(self, layer):
-        # if type(layer) != l.Layer:
-        #     raise TypeError("Must be of type Layer")
+    def add_layer(self, output_size, activation, input_size):
+        """ add_layer
+        args:
+        output_size -- the number of outputs from the layer
+        activation -- the activation function to use "relu", "sigmoid", "heaviside"
+        input_size -- the number of inputs for the layer
+        """
+        self.layers.append(Layer(output_size, activation, input_size))
+        self.weights.append((output_size, input_size))
+    
+    def forward_propegation(self, X):
+        nextZ =  self.layers[0].predict(X) # for the first layer feed raw input
+        for i in range(1, len(self.layers)): 
+            nextZ = self.layers[i].predict(nextZ) # for every other layer feed the output of every neuron to the next layer of neurons
+
+        return nextZ # return the outputs layer
         
-        self.layers.append(layer)
-
-    def _feed_forward(self, layer, X, W, B, y, Z=None):
-        for h in layer:
-            h.weights, h.bias = W, B
-            print(h)            
-            h.fit(X, y)
-
-        pass
-        # for h in layer[0]:
-
-        # for h in layer:
-        #     for h_i in h:
-        #         print(h_i)
-
-    def fit(self, X, y):
-        # for e/a perceptronfo in each layer call fit
-        # need to forward_propegate the weights and bias from the perceptron, to the next... I think 
-        for h in self.layers[0]:
-            h.fit(X,y)
-            W = h.weights
-            B = h.bias
-            self._feed_forward(self.layers[1], X=X, W=W, B=B, y=y)
-
-
-    def evaluate(self, X, y):
-        pass
-
-    def predict(self):
-        pass
-
-    def fit_predict(self):
-        pass
-
     
+    def back_propegation(self, Z, X, Y):
+        sig_deriv = (lambda x: x * (1 - x))
+        e = Z - Y.T # get the error of our output
+        delta = e * sig_deriv(Z) # using the derivative of sigmoid to get the difference
+        update_0 = []
+        for w in range(1,len(self.weights)): # for every weight in our weight we gather the err and delta and update the weights accordingly
+            z_err = delta.dot(w) # the error of the layer based off the final output delta
+            z_delta = z_err * sig_deriv(Z) # the diff between the layer output and final output
+            for d in z_delta:
+                if (d.shape == X.shape):
+                    update_0 += X.T.dot(d) # the update should be the dot product of our transposed X and delta of layer deltas
+            self.layers[0].update_weights(update_0) # update the weights of our input to hidden layer
+            update_l_n =[]
+            for d in delta:
+                if d.shape == Z.T.shape:
+                    update_l_n += Z.T.dot(d)
+            self.layers[w].update_weights(update_l_n) # update all other layers weights
+    
+    def gradient_desc(self, X, Y, iters):
+        for i in range(iters):
+            Z = self.forward_propegation(X) # feed forward the data
+            self.back_propegation(Z, Y, X) # propegate back the error and delta to update the weights on each neuron of layer n
+            if i % 50 == 0:
+                print('iter:', i)
+                print('Acc: ', np.sum(np.argmax(Z, 0) == Y)) # check our gradient descent
+        return Z # finally return our prediction
+            
+if __name__=='__main__':
+    wildfires = read_data_return_dataframe("wildfires.txt")
+    # Copy to be used for the rest of the assignment
+    wildfires_copy = wildfires.copy()
+    # wildfires_copy = convert_label(wildfires,'fire',['no', 'yes'],[0, 1])
 
-# # mlp.add_layer(np.array([]))
 
-# print(mlp.layers)
-# mlp.add_layer([[1,2,3]])
-# mlp.add_layer([[4,5,3]])
-# mlp.add_layer([[6,7,3]])
+    features = ['year', 'temp', 'humidity', 'rainfall', 'drought_code', 'buildup_index', 'day', 'month', 'wind_speed']
+    X_train, X_test, y_train, y_test = split_df_to_train_test_dfs(wildfires_copy, test_set_size=.1,
+                                                        random_state=42)
+    X_train = X_train[features].values  # returns a numpy NdArray of the features
+    X_test = X_test[features].values  # returns a numpy NdArray of the features
+    X_train = Normalize(X_train, features)
+    X_test = Normalize(X_test, features)
+
+    X_train = np.asarray(X_train)[0:32]
+    y_train = np.asarray(y_train).flatten()
+    y_train = np.asarray([1 if 'yes' in y else 0 for y in y_train])[0:32]
+
+
+    m, n = X_train.shape
+    print(m, n)
+    mlp = MLP()
+    mlp.add_layer(output_size = m, activation='relu', input_size=n) # Add a layer of 32 inputs
+    mlp.add_layer(output_size = 1, activation='sigmoid', input_size= m)
+    Z = mlp.gradient_desc(X_train, y_train, 500, 0.1)
+    
+    print(Z)
+    

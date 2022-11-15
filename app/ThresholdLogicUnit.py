@@ -59,7 +59,6 @@ class ThresholdLogicUnit:
         for x in X:
             prediction.append(self.activation_func(np.dot(x.T, self.weights)))
         return prediction
-
     def __repr__(self):
         return f"{type(self).__name__}()"
 

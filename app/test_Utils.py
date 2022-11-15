@@ -20,7 +20,7 @@ class TestUtils(unittest.TestCase):
         
     def test_split_df_to_train_test_dfs(self):
         df = read_data_return_dataframe('testdata-alt.txt')
-        train, test = split_df_to_train_test_dfs(df, upper=.7)
+        train, test = split_df_to_train_test_dfs(df)
 
         self.assertEqual(train.index.equals(test.index), False)
         self.assertEqual(len(train) + len(test), len(df))
