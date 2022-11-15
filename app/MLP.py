@@ -48,41 +48,48 @@ class MLP():
                     update_l_n += Z.T.dot(d)
             self.layers[w].update_weights(update_l_n) # update all other layers weights
     
-    def gradient_desc(self, X, Y, iters):
+    def train(self, X, Y, iters, show_metrics=False):
         for i in range(iters):
             Z = self.forward_propegation(X) # feed forward the data
             self.back_propegation(Z, Y, X) # propegate back the error and delta to update the weights on each neuron of layer n
-            if i % 50 == 0:
-                print('iter:', i)
-                print('Acc: ', np.sum(np.argmax(Z, 0) == Y)) # check our gradient descent
+            if show_metrics and i % 25 == 0:
+                print(f'iteration: {i} / {iters} ============= Acc: {accuracy(Z[0], Y)}')# check our gradient descent
+        print(f'Prediction: {Z}')
         return Z # finally return our prediction
-            
+    
+    def predict(self, X):
+        p = self.forward_propegation(X)
+        return p
+
 if __name__=='__main__':
     wildfires = read_data_return_dataframe("wildfires.txt")
     # Copy to be used for the rest of the assignment
     wildfires_copy = wildfires.copy()
     # wildfires_copy = convert_label(wildfires,'fire',['no', 'yes'],[0, 1])
 
-
     features = ['year', 'temp', 'humidity', 'rainfall', 'drought_code', 'buildup_index', 'day', 'month', 'wind_speed']
-    X_train, X_test, y_train, y_test = split_df_to_train_test_dfs(wildfires_copy, test_set_size=.1,
-                                                        random_state=42)
+    X_train, X_test, y_train, y_test = split_df_to_train_test_dfs(wildfires_copy, test_set_size=.2, random_state=42)
     X_train = X_train[features].values  # returns a numpy NdArray of the features
     X_test = X_test[features].values  # returns a numpy NdArray of the features
     X_train = Normalize(X_train, features)
     X_test = Normalize(X_test, features)
 
-    X_train = np.asarray(X_train)[0:32]
+    X_train = np.asarray(X_train)[0:40]
     y_train = np.asarray(y_train).flatten()
-    y_train = np.asarray([1 if 'yes' in y else 0 for y in y_train])[0:32]
+    y_test = np.asarray(y_test).flatten()
+
+    y_train = np.asarray([1 if 'yes' in y else 0 for y in y_train])[0:40]
+    X_test = np.asarray(X_test)[0:40]
+    y_test = np.asarray([1 if 'yes' in y else 0 for y in y_test])[0:40]
 
 
     m, n = X_train.shape
-    print(m, n)
     mlp = MLP()
     mlp.add_layer(output_size = m, activation='relu', input_size=n) # Add a layer of 32 inputs
     mlp.add_layer(output_size = 1, activation='sigmoid', input_size= m)
-    Z = mlp.gradient_desc(X_train, y_train, 500, 0.1)
+    mlp.train(X=X_train, Y=y_train, iters= 1000, show_metrics= True)
     
-    print(Z)
+    p = mlp.predict(X_test)
+
+    print(p)
     
