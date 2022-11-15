@@ -13,7 +13,7 @@ class ThresholdLogicUnit:
         self.learning_rate = learning_rate  # specifies the learning rate for the TLU
         self.weights = None                 # none for first time activation can be passed pre clalced biases
         self.activation_function = activation_function # specifies activation function 'Relu', 'Sigmoid', 'Heaviside'
-
+        self._validate_input_params(learning_rate)
     def initialise_weights(self, x):
         w = []  # empty weights array
         for _ in range(len(x)):  # loops through inputs
@@ -66,9 +66,7 @@ class ThresholdLogicUnit:
     def __str__(self):
         return f'{type(self).__name__} - weights:{self.weights}'
 
-    def _validate_input_params(self, learn_rate, n_iters):
-        if not isinstance(n_iters, int) or n_iters < 1:
-            raise ValueError("n_iters must be an integer and a natural number")
+    def _validate_input_params(self, learn_rate):
         if not isinstance(learn_rate, (int, float)) or learn_rate <= 0:
             raise ValueError("learn_rate must be a float or int greater than 0")
 
@@ -95,20 +93,24 @@ if __name__=='__main__':
     features = ['year', 'temp', 'humidity', 'rainfall', 'drought_code', 'buildup_index', 'day', 'month', 'wind_speed']
     X_train, X_test, y_train, y_test = train_test_split(wildfires_copy, wildfires_labels, test_size=0.1,
                                                         random_state=42)
+    print(X_train)
     X_train = X_train[features].values  # returns a numpy NdArray of the features
     X_test = X_test[features].values  # returns a numpy NdArray of the features
+    print(X_train)
     X_train = Normalize(X_train, features)
     X_test = Normalize(X_test, features)
 
     X_train = np.asarray(X_train)
     y_train = np.asarray(y_train)
 
+    print(X_train)
+
+
     perceptron = ThresholdLogicUnit(learning_rate=0.1, activation_function='sigmoid')
     perceptron.fit(X_train,y_train, learning_iterations=200)
 
     predictions = perceptron.predict(np.asarray(X_test))
     print(predictions)
-
 
     print("Test", perceptron.sigmoid(0))
     print("Confusin Matrix [TP, FP][TN, FN]")
